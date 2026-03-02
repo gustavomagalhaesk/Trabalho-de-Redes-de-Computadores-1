@@ -26,9 +26,12 @@ hashArquivo = hashArquivo.strip().decode()
 
 # recebe o arquivo e o hash 
 with open(nomeArquivo, "wb") as f:
-    dados = conexao.recv(8192)
-    f.write(dados) # salva o arquivo no diretorio "servidor"
-    sha256.update(dados) # calcula o hash do arquivo recebido
+    while True:
+        dados = conexao.recv(4096)
+        if not dados:
+            break
+        f.write(dados) # salva o arquivo no diretorio "servidor"
+        sha256.update(dados) # calcula o hash do arquivo recebido
 
 hashCalculado = sha256.hexdigest()
 

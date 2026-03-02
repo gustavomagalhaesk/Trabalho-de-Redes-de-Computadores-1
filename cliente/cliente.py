@@ -15,8 +15,12 @@ cliente.connect((ip, porta)) # conecta com o servidor
 
 # primeiro calcula o hash do arquivo selecionado
 with open(arquivo, 'rb') as f: 
-    dados = f.read(8192)
-    sha256.update(dados)
+    while True:
+        dados = f.read(4096)
+        if not dados:
+            break
+        sha256.update(dados)
+
 hashArquivo = sha256.hexdigest() 
 
 cliente.sendall(nomeArquivo.encode() + b'\n') # envia o nome do arquivo
@@ -24,9 +28,13 @@ cliente.sendall(hashArquivo.encode() + b'\n') # envia o hash do arquivo
 
 # abre o arquivo para enviar
 with open(arquivo, 'rb') as f:
-    for dados in f:
+    while True:
+        dados = f.read(4096)
+        if not dados:
+            break
         cliente.sendall(dados)
 
+cliente.shutdown(socket.SHUT_WR) # avisa quando terminar de enviar os dados
 
 # recebe a resposta do servidor
 resposta = cliente.recv(1024)
